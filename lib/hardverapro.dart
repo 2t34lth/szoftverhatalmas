@@ -10,9 +10,9 @@ class Hardverapro {
 
     final document = parse(resp.body);
 
-    final posts = document.querySelectorAll(".media").map((el) {
+    return document.querySelectorAll(".media").map((el) {
       return HardveraproPost(
-        title: el.querySelector("h1")?.text,
+        title: el.querySelector("h1")?.querySelector("a")?.text,
         price: el.querySelector(".uad-price")?.text,
         location: el.querySelector(".uad-light")?.querySelector("span") != null
             ? el
@@ -23,6 +23,7 @@ class Hardverapro {
         imageUrl:
             "https:${el.querySelector(".uad-image")?.querySelector("img")?.attributes["src"]}"
                 .replaceFirst(RegExp(r'\/100$'), "/400"),
+        url: el.querySelector("h1")?.querySelector("a")?.attributes["href"],
         author: HardveraproPostAuthor(
           username: el
               .querySelector(".uad-misc")
@@ -32,12 +33,24 @@ class Hardverapro {
         ),
       );
     }).toList();
+  }
 
-    for (var element in posts) {
-      print(element.title);
-    }
+  static Future<HardveraproProduct> getPost(String url) async {
+    final resp = await http.get(Uri.parse(url));
 
-    return posts;
+    final document = parse(resp.body);
+    final ad = document.querySelector(".uad");
+
+    return HardveraproProduct(
+      title: ad?.querySelector("h1")?.text.trim(),
+      description: ad?.querySelector(".rtif-content")?.innerHtml.trim(),
+      price: ad?.querySelector(".uad-details")?.querySelector("h2")?.text,
+      images: ad
+              ?.querySelectorAll(".carousel-item")
+              .map<String?>((el) => el.querySelector("img")?.attributes["src"])
+              .toList() ??
+          [],
+    );
   }
 }
 
@@ -46,6 +59,7 @@ class HardveraproPost {
   final String? price;
   final String? location;
   final String? imageUrl;
+  final String? url;
   final HardveraproPostAuthor author;
 
   HardveraproPost({
@@ -53,7 +67,22 @@ class HardveraproPost {
     required this.price,
     required this.location,
     required this.imageUrl,
+    required this.url,
     required this.author,
+  });
+}
+
+class HardveraproProduct {
+  final String? title;
+  final String? description;
+  final String? price;
+  final List<String?> images;
+
+  HardveraproProduct({
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.images,
   });
 }
 
@@ -64,5 +93,15 @@ class HardveraproPostAuthor {
   HardveraproPostAuthor({
     required this.username,
     required this.rating,
+  });
+}
+
+class Category {
+  final String name;
+  final String path;
+
+  Category({
+    required this.name,
+    required this.path,
   });
 }

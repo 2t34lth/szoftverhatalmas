@@ -1,13 +1,14 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
+import 'package:hardverapro_a_kezedben/views/product_view.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const App());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class App extends StatelessWidget {
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -72,53 +73,76 @@ class _HomePageState extends State<HomePage> {
         child: Column(children: [
           Expanded(
             child: ListView(
-              children: _posts.isEmpty
-                  ? [const Text("varunk...")]
-                  : _posts.map((el) {
-                      return Card(
-                        clipBehavior: Clip.antiAlias,
-                        child: Column(
-                          children: [
-                            Image.network(
-                              el.imageUrl!,
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    el.title ?? "unknown title",
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        el.price ?? "unknown price",
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        "${el.author.username} (${el.author.rating})",
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
+              children: _posts.map((el) {
+                return Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProductView(
+                            url: el.url!,
+                            title: el.title ?? "unknown title",
+                          ),
                         ),
                       );
-                    }).toList(),
+                    },
+                    child: Column(
+                      children: [
+                        Image.network(
+                          el.imageUrl!,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                el.title ?? "unknown title",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    el.price ?? "unknown price",
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        el.author.username ?? "unknown author",
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        el.author.rating ?? "(unknown rating)",
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           )
         ]),
