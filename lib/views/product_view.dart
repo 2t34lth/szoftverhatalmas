@@ -49,13 +49,7 @@ class _ProductViewState extends State<ProductView> {
       ),
       body: _product == null
           ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                ],
-              ),
+              child: CircularProgressIndicator(),
             )
           : SingleChildScrollView(
               child: Column(

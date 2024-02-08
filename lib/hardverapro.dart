@@ -1,15 +1,9 @@
+import "package:html/dom.dart";
 import "package:http/http.dart" as http;
 import "package:html/parser.dart";
 
 class Hardverapro {
-  static Future<List<HardveraproPost>> search(String query) async {
-    final resp = await http.get(
-      Uri.parse(
-          "https://hardverapro.hu/aprok/keres.php?stext=${Uri.encodeFull(query)}"),
-    );
-
-    final document = parse(resp.body);
-
+  static List<HardveraproPost> parsePosts(Document document) {
     return document.querySelectorAll(".media").map((el) {
       return HardveraproPost(
         title: el.querySelector("h1")?.querySelector("a")?.text,
@@ -35,6 +29,16 @@ class Hardverapro {
     }).toList();
   }
 
+  static Future<List<HardveraproPost>> search(String query) async {
+    final resp = await http.get(
+      Uri.parse(
+          "https://hardverapro.hu/aprok/keres.php?stext=${Uri.encodeFull(query)}"),
+    );
+
+    final Document document = parse(resp.body);
+    return parsePosts(document);
+  }
+
   static Future<HardveraproProduct> getPost(String url) async {
     final resp = await http.get(Uri.parse(url));
 
@@ -51,6 +55,13 @@ class Hardverapro {
               .toList() ??
           [],
     );
+  }
+
+  static Future<List<HardveraproPost>> homePosts() async {
+    final resp = await http.get(Uri.parse("https://hardverapro.hu/index.html"));
+
+    final Document document = parse(resp.body);
+    return parsePosts(document);
   }
 }
 
