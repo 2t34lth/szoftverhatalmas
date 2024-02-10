@@ -1,7 +1,9 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:hardverapro_a_kezedben/hardverapro.dart';
-import 'package:hardverapro_a_kezedben/views/product_view.dart';
+import 'package:hardverapro_a_kezedben/views/account_view.dart';
+import 'package:hardverapro_a_kezedben/views/messages_view.dart';
+import 'package:hardverapro_a_kezedben/views/saved_view.dart';
+import 'package:hardverapro_a_kezedben/views/search_view.dart';
 
 void main() {
   runApp(const App());
@@ -38,152 +40,42 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _searchQuery = TextEditingController();
-  List<HardveraproPost> _posts = [];
-  bool _searchOpen = false;
+  int _selectedPage = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    Hardverapro.homePosts().then((posts) {
-      setState(() {
-        _posts = posts;
-      });
-    });
-  }
-
-  Future<void> _search() async {
-    setState(() {
-      _posts = [];
-    });
-    final posts = await Hardverapro.search(_searchQuery.text);
-    setState(() {
-      _posts = posts;
-    });
-  }
+  final List<MaterialPage> _pages = [
+    const MaterialPage(child: SearchView()),
+    const MaterialPage(child: SavedView()),
+    const MaterialPage(child: MessagesView()),
+    const MaterialPage(child: AccountView()),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 1,
-        flexibleSpace: _searchOpen
-            ? SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SearchBar(
-                    hintText: "Search",
-                    elevation: const MaterialStatePropertyAll(1),
-                    trailing: [
-                      IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: _search,
-                      )
-                    ],
-                    controller: _searchQuery,
-                  ),
-                ),
-              )
-            : null,
-        title: !_searchOpen ? const Text("SzoftverHatalamas") : null,
-        actions: !_searchOpen
-            ? [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _searchOpen = true;
-                      });
-                    },
-                    icon: const Icon(Icons.search),
-                    label: const Text("Search"),
-                  ),
-                )
-              ]
-            : null,
+      bottomNavigationBar: NavigationBar(
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.search), label: "Search"),
+          NavigationDestination(icon: Icon(Icons.list), label: "Saved"),
+          NavigationDestination(icon: Icon(Icons.message), label: "Messages"),
+          NavigationDestination(icon: Icon(Icons.person), label: "Me"),
+        ],
+        onDestinationSelected: (value) {
+          setState(() {
+            _selectedPage = value;
+          });
+        },
+        selectedIndex: _selectedPage,
       ),
-      body: _posts.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Expanded(
-                child: ListView(
-                  children: _posts.map((el) {
-                    return Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ProductView(
-                                url: el.url!,
-                                title: el.title ?? "unknown title",
-                              ),
-                            ),
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            Image.network(
-                              el.imageUrl!,
-                              width: double.infinity,
-                              height: 200,
-                              fit: BoxFit.cover,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    el.title ?? "unknown title",
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        el.price ?? "unknown price",
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            el.author.username ??
-                                                "unknown author",
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            el.author.rating ??
-                                                "(unknown rating)",
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
+      body: Navigator(
+        onPopPage: (a, b) {
+          return true;
+        },
+        pages: [
+          _pages.length > _selectedPage
+              ? _pages[_selectedPage]
+              : const MaterialPage(child: Placeholder())
+        ],
+      ),
     );
   }
 }

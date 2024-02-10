@@ -18,12 +18,13 @@ class Hardverapro {
             "https:${el.querySelector(".uad-image")?.querySelector("img")?.attributes["src"]}"
                 .replaceFirst(RegExp(r'\/100$'), "/400"),
         url: el.querySelector("h1")?.querySelector("a")?.attributes["href"],
-        author: HardveraproPostAuthor(
+        author: HardveraproAuthor(
           username: el
               .querySelector(".uad-misc")
               ?.querySelector(".uad-light > a")
               ?.text,
-          rating: el.querySelector(".uad-rating")?.text,
+          rating: el.querySelector(".uad-rating")?.text.trim(),
+          avatarUrl: "",
         ),
       );
     }).toList();
@@ -49,6 +50,17 @@ class Hardverapro {
       title: ad?.querySelector("h1")?.text.trim(),
       description: ad?.querySelector(".rtif-content")?.innerHtml.trim(),
       price: ad?.querySelector(".uad-details")?.querySelector("h2")?.text,
+      author: HardveraproAuthor(
+        username: document.querySelector(".uad")?.querySelector("b > a")?.text,
+        rating: document
+            .querySelector(".uad")
+            ?.querySelectorAll("span.uad-rating")
+            .last
+            .text
+            .trim(),
+        avatarUrl:
+            "https:${document.querySelector(".uad")?.querySelector(".uad-content-block.uad-time-location.align-items-center")?.querySelector("img")?.attributes["src"]}",
+      ),
       images: ad
               ?.querySelectorAll(".carousel-item")
               .map<String?>((el) => el.querySelector("img")?.attributes["src"])
@@ -63,6 +75,31 @@ class Hardverapro {
     final Document document = parse(resp.body);
     return parsePosts(document);
   }
+
+  static Future<List<Category>> getCategories(String path) async {
+    final resp = await http.get(Uri.parse(path));
+    final document = parse(resp.body);
+
+    print(path);
+
+    return document
+        .querySelector(".uad-categories")!
+        .querySelectorAll("a.d-flex")
+        .map((el) {
+      return Category(
+        name: el.text,
+        path: el.attributes["href"]!
+            .replaceAll(RegExp(r'\/keres\.php.*'), "/index.html"),
+      );
+    }).toList();
+  }
+}
+
+class SearchResults {
+  final List<Category>? categories;
+  final List<HardveraproPost> results;
+
+  SearchResults({required this.categories, required this.results});
 }
 
 class HardveraproPost {
@@ -71,7 +108,7 @@ class HardveraproPost {
   final String? location;
   final String? imageUrl;
   final String? url;
-  final HardveraproPostAuthor author;
+  final HardveraproAuthor author;
 
   HardveraproPost({
     required this.title,
@@ -88,22 +125,26 @@ class HardveraproProduct {
   final String? description;
   final String? price;
   final List<String?> images;
+  final HardveraproAuthor author;
 
   HardveraproProduct({
     required this.title,
     required this.description,
     required this.price,
     required this.images,
+    required this.author,
   });
 }
 
-class HardveraproPostAuthor {
+class HardveraproAuthor {
   final String? username;
   final String? rating;
+  final String? avatarUrl;
 
-  HardveraproPostAuthor({
+  HardveraproAuthor({
     required this.username,
     required this.rating,
+    required this.avatarUrl,
   });
 }
 

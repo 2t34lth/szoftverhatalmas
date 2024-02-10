@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:full_screen_image/full_screen_image.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
 
 class ProductView extends StatefulWidget {
@@ -58,7 +59,10 @@ class _ProductViewState extends State<ProductView> {
                     color: Colors.black,
                     child: CarouselSlider(
                       items: _product!.images
-                          .map((img) => Image.network("https:$img"))
+                          .map((img) => FullScreenWidget(
+                                disposeLevel: DisposeLevel.Medium,
+                                child: Image.network("https:$img"),
+                              ))
                           .toList(),
                       options: CarouselOptions(
                         enableInfiniteScroll: false,
@@ -84,6 +88,38 @@ class _ProductViewState extends State<ProductView> {
                               color: Theme.of(context).colorScheme.secondary,
                               fontWeight: FontWeight.bold,
                               fontSize: 32),
+                        ),
+                        const SizedBox(height: 10),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                  _product?.author.avatarUrl ??
+                                      "https://i.pravatar.cc/300",
+                                )),
+                                const SizedBox(width: 10),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_product?.author.username ??
+                                        "unknown user"),
+                                    Text(
+                                      _product?.author.rating ??
+                                          "unknown rating",
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Card(
