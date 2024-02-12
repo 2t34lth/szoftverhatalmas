@@ -9,19 +9,30 @@ class SearchView extends StatefulWidget {
   State<SearchView> createState() => _SearchViewState();
 }
 
+enum LoadingState {
+  processing,
+  ready,
+}
+
 class _SearchViewState extends State<SearchView> {
   List<HardveraproPost> _posts = [];
   final _searchQuery = TextEditingController();
+  LoadingState _state = LoadingState.processing;
 
   void _search() {
     setState(() {
       _posts = [];
+      _state = LoadingState.processing;
     });
     Hardverapro.search(_searchQuery.text).then((posts) {
       setState(() {
         _posts = posts;
       });
-    });
+    }).whenComplete(
+      () => setState(() {
+        _state = LoadingState.ready;
+      }),
+    );
   }
 
   @override
@@ -30,6 +41,7 @@ class _SearchViewState extends State<SearchView> {
     Hardverapro.homePosts().then((posts) {
       setState(() {
         _posts = posts;
+        _state = LoadingState.ready;
       });
     });
   }
@@ -39,27 +51,53 @@ class _SearchViewState extends State<SearchView> {
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
-        flexibleSpace: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SearchBar(
-              controller: _searchQuery,
-              elevation: const MaterialStatePropertyAll(1),
-              hintText: "Search",
-              onSubmitted: (q) => _search(),
-              trailing: [
-                IconButton(
-                  onPressed: _search,
-                  icon: const Icon(Icons.search),
-                )
-              ],
+        actions: <Widget>[
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: SearchBar(
+                controller: _searchQuery,
+                elevation: const MaterialStatePropertyAll(1),
+                hintText: "Search",
+                onSubmitted: (q) => _search(),
+                trailing: [
+                  IconButton(
+                    onPressed: _search,
+                    icon: const Icon(Icons.search),
+                  )
+                ],
+              ),
             ),
           ),
-        ),
+          IconButton(
+            icon: const Icon(Icons.tune),
+            onPressed: () {
+              // Perform search action
+            },
+          ),
+        ],
       ),
-      body: _posts.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
+      body: Builder(
+        builder: (context) {
+          if (_state == LoadingState.processing) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (_posts.isEmpty) {
+            return Center(
+              child: Column(
+                children: [
+                  const SizedBox(height: 30),
+                  Text(
+                    "No results found",
+                    style: TextStyle(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -67,7 +105,10 @@ class _SearchViewState extends State<SearchView> {
                   return SearchResult(post: el);
                 }).toList(),
               ),
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 }
