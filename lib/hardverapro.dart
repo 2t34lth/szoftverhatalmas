@@ -34,10 +34,11 @@ class Hardverapro {
     }).toList();
   }
 
-  static Future<List<HardveraproPost>> search(String query) async {
+  static Future<List<HardveraproPost>> search(String query,
+      {Category? category}) async {
     final resp = await http.get(
       Uri.parse(
-          "https://hardverapro.hu/aprok/keres.php?stext=${Uri.encodeFull(query)}"),
+          "https://hardverapro.hu/aprok/${category?.path}/keres.php?stext=${Uri.encodeFull(query)}"),
     );
 
     final Document document = parse(resp.body);
@@ -82,8 +83,14 @@ class Hardverapro {
   }
 
   static Future<List<Category>> getCategories(String path) async {
-    final resp = await http.get(Uri.parse(path));
+    final resp = await http
+        .get(Uri.parse("https://hardverapro.hu/aprok/$path/index.html"));
     final document = parse(resp.body);
+    final pathRegex = RegExp(r'^\/aprok\/(.+)\/index.html$');
+
+    if (document.querySelector(".uad-categories-item.active") != null) {
+      return [];
+    }
 
     return document
         .querySelector(".uad-categories")!
@@ -91,8 +98,10 @@ class Hardverapro {
         .map((el) {
       return Category(
         name: el.text,
-        path: el.attributes["href"]!
-            .replaceAll(RegExp(r'\/keres\.php.*'), "/index.html"),
+        path: pathRegex
+            .firstMatch(el.attributes["href"]!
+                .replaceAll(RegExp(r'\/keres\.php.*'), "/index.html"))!
+            .group(1)!,
       );
     }).toList();
   }

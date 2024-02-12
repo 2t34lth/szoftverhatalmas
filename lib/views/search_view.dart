@@ -15,11 +15,17 @@ enum LoadingState {
   ready,
 }
 
+class Filter {
+  final Category? category;
+
+  Filter({this.category});
+}
+
 class _SearchViewState extends State<SearchView> {
   List<HardveraproPost> _posts = [];
   final _searchQuery = TextEditingController();
   LoadingState _state = LoadingState.processing;
-  String? _filter;
+  Filter? _filter;
 
   void _setFilter() {
     Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
@@ -30,6 +36,8 @@ class _SearchViewState extends State<SearchView> {
       setState(() {
         _filter = r;
       });
+
+      _search();
     });
   }
 
@@ -38,7 +46,10 @@ class _SearchViewState extends State<SearchView> {
       _posts = [];
       _state = LoadingState.processing;
     });
-    Hardverapro.search(_searchQuery.text).then((posts) {
+    Hardverapro.search(
+      _searchQuery.text,
+      category: _filter?.category,
+    ).then((posts) {
       setState(() {
         _posts = posts;
       });
@@ -72,7 +83,7 @@ class _SearchViewState extends State<SearchView> {
               child: SearchBar(
                 controller: _searchQuery,
                 elevation: const MaterialStatePropertyAll(1),
-                hintText: _filter ?? "Search",
+                hintText: "Search",
                 onSubmitted: (q) => _search(),
                 trailing: [
                   IconButton(
