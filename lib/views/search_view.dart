@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
+import 'package:hardverapro_a_kezedben/views/filter_view.dart';
 import 'package:hardverapro_a_kezedben/widgets/search_result.dart';
 
 class SearchView extends StatefulWidget {
@@ -18,6 +19,19 @@ class _SearchViewState extends State<SearchView> {
   List<HardveraproPost> _posts = [];
   final _searchQuery = TextEditingController();
   LoadingState _state = LoadingState.processing;
+  String? _filter;
+
+  void _setFilter() {
+    Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+      builder: (context) {
+        return const FilterView();
+      },
+    )).then((r) {
+      setState(() {
+        _filter = r;
+      });
+    });
+  }
 
   void _search() {
     setState(() {
@@ -58,7 +72,7 @@ class _SearchViewState extends State<SearchView> {
               child: SearchBar(
                 controller: _searchQuery,
                 elevation: const MaterialStatePropertyAll(1),
-                hintText: "Search",
+                hintText: _filter ?? "Search",
                 onSubmitted: (q) => _search(),
                 trailing: [
                   IconButton(
@@ -71,9 +85,7 @@ class _SearchViewState extends State<SearchView> {
           ),
           IconButton(
             icon: const Icon(Icons.tune),
-            onPressed: () {
-              // Perform search action
-            },
+            onPressed: _setFilter,
           ),
         ],
       ),
