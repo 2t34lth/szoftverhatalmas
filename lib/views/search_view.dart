@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
-import 'package:hardverapro_a_kezedben/views/product_view.dart';
+import 'package:hardverapro_a_kezedben/widgets/search_result.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -10,7 +10,6 @@ class SearchView extends StatefulWidget {
 }
 
 class _SearchViewState extends State<SearchView> {
-  // final _searchQuery = TextEditingController();
   List<HardveraproPost> _posts = [];
   final _searchQuery = TextEditingController();
 
@@ -65,76 +64,7 @@ class _SearchViewState extends State<SearchView> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: _posts.map((el) {
-                  return Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.of(context, rootNavigator: true).push(
-                          MaterialPageRoute(
-                            builder: (context) => ProductView(
-                              url: el.url!,
-                              title: el.title ?? "unknown title",
-                            ),
-                          ),
-                        );
-                      },
-                      child: Column(
-                        children: [
-                          Image.network(
-                            el.imageUrl!,
-                            width: double.infinity,
-                            height: 200,
-                            fit: BoxFit.cover,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              children: [
-                                Text(
-                                  el.title ?? "unknown title",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      el.price ?? "unknown price",
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          el.author.username ??
-                                              "unknown author",
-                                        ),
-                                        const SizedBox(width: 5),
-                                        Text(
-                                          el.author.rating ??
-                                              "(unknown rating)",
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
+                  return SearchResult(post: el);
                 }).toList(),
               ),
             ),

@@ -82,12 +82,42 @@ class _ProductViewState extends State<ProductView> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          _product!.price ?? "unknown price",
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 32),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _product!.price ?? "unknown price",
+                              style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 32),
+                            ),
+                            Visibility(
+                              visible: _product?.freezed ?? false,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(
+                                    Icons.ac_unit,
+                                    size: 18,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    "Freezed",
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
                         ),
                         const SizedBox(height: 10),
                         Card(

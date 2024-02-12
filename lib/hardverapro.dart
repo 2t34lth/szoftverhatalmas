@@ -18,6 +18,10 @@ class Hardverapro {
             "https:${el.querySelector(".uad-image")?.querySelector("img")?.attributes["src"]}"
                 .replaceFirst(RegExp(r'\/100$'), "/400"),
         url: el.querySelector("h1")?.querySelector("a")?.attributes["href"],
+        freezed: el
+                .querySelector(".uad-title")
+                ?.querySelector("span.fa-snowflake") !=
+            null,
         author: HardveraproAuthor(
           username: el
               .querySelector(".uad-misc")
@@ -50,6 +54,7 @@ class Hardverapro {
       title: ad?.querySelector("h1")?.text.trim(),
       description: ad?.querySelector(".rtif-content")?.innerHtml.trim(),
       price: ad?.querySelector(".uad-details")?.querySelector("h2")?.text,
+      freezed: document.querySelector(".uad.iced") != null,
       author: HardveraproAuthor(
         username: document.querySelector(".uad")?.querySelector("b > a")?.text,
         rating: document
@@ -80,8 +85,6 @@ class Hardverapro {
     final resp = await http.get(Uri.parse(path));
     final document = parse(resp.body);
 
-    print(path);
-
     return document
         .querySelector(".uad-categories")!
         .querySelectorAll("a.d-flex")
@@ -108,6 +111,7 @@ class HardveraproPost {
   final String? location;
   final String? imageUrl;
   final String? url;
+  final bool freezed;
   final HardveraproAuthor author;
 
   HardveraproPost({
@@ -116,6 +120,7 @@ class HardveraproPost {
     required this.location,
     required this.imageUrl,
     required this.url,
+    required this.freezed,
     required this.author,
   });
 }
@@ -125,6 +130,7 @@ class HardveraproProduct {
   final String? description;
   final String? price;
   final List<String?> images;
+  final bool freezed;
   final HardveraproAuthor author;
 
   HardveraproProduct({
@@ -132,6 +138,7 @@ class HardveraproProduct {
     required this.description,
     required this.price,
     required this.images,
+    required this.freezed,
     required this.author,
   });
 }

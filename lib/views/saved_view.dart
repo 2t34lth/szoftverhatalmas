@@ -5,12 +5,11 @@ class SavedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("saved page"),
-        Text("not implemented"),
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Saved items"),
+        elevation: 1,
+      ),
     );
   }
 }
