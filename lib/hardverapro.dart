@@ -37,8 +37,11 @@ class Hardverapro {
   static Future<List<HardveraproPost>> search(String query,
       {Category? category}) async {
     final resp = await http.get(
-      Uri.parse(
-          "https://hardverapro.hu/aprok/${category?.path}/keres.php?stext=${Uri.encodeFull(query)}"),
+      category != null
+          ? Uri.parse(
+              "https://hardverapro.hu/aprok/${category.path}/keres.php?stext=${Uri.encodeFull(query)}")
+          : Uri.parse(
+              "https://hardverapro.hu/aprok/keres.php?stext=${Uri.encodeFull(query)}"),
     );
 
     final Document document = parse(resp.body);
