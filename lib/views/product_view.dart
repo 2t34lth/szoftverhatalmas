@@ -154,6 +154,47 @@ class _ProductViewState extends State<ProductView> {
                         const SizedBox(height: 10),
                         Card(
                           child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.pin_drop, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      _product?.location ?? "unknown location",
+                                      overflow: TextOverflow.fade,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Visibility(
+                                  visible: _product?.isDelivered ?? false,
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.local_shipping, size: 20),
+                                      SizedBox(width: 5),
+                                      Text("Delivery available"),
+                                    ],
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: _product?.isPickupOnly ?? false,
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.directions_walk, size: 20),
+                                      SizedBox(width: 5),
+                                      Text("Pickup only"),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Card(
+                          child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: HtmlWidget(
                               _product!.description ?? "<i>no description</i>",
