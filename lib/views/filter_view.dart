@@ -57,6 +57,32 @@ class _FilterViewState extends State<FilterView> {
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+            const Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Min price",
+                      suffix: Text("HUF"),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Text("-"),
+                SizedBox(width: 10),
+                Flexible(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Max price",
+                      suffix: Text("HUF"),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ],
         ),
       ),
