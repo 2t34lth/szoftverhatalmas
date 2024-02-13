@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:hardverapro_a_kezedben/hardverapro.dart';
 import 'package:hardverapro_a_kezedben/views/category_view.dart';
 import 'package:hardverapro_a_kezedben/views/search_view.dart';
 
 class FilterView extends StatefulWidget {
-  const FilterView({super.key});
+  final Filter? filter;
+  const FilterView({super.key, this.filter});
 
   @override
   State<FilterView> createState() => _FilterViewState();
 }
 
 class _FilterViewState extends State<FilterView> {
-  Category? _category;
+  late Filter _filter;
+
+  @override
+  void initState() {
+    super.initState();
+    _filter = widget.filter ?? Filter();
+  }
 
   void _setCategory() {
     Navigator.of(context).push(MaterialPageRoute(
@@ -20,7 +26,7 @@ class _FilterViewState extends State<FilterView> {
       },
     )).then((value) {
       setState(() {
-        _category = value;
+        _filter.category = value;
       });
     });
   }
@@ -34,22 +40,24 @@ class _FilterViewState extends State<FilterView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
               children: [
-                Text(_category?.name ?? "No category"),
-                FilledButton(
-                  onPressed: _setCategory,
-                  child: const Text("Select category"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(_filter.category?.name ?? "No category"),
+                    FilledButton(
+                      onPressed: _setCategory,
+                      child: const Text("Select category"),
+                    ),
+                  ],
                 ),
               ],
             ),
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop(
-                  Filter(
-                    category: _category,
-                  ),
+                  _filter,
                 );
               },
               child: const Text("Save"),
