@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hardverapro_a_kezedben/hardverapro.dart';
 import 'package:hardverapro_a_kezedben/views/category_view.dart';
 import 'package:hardverapro_a_kezedben/views/search_view.dart';
 
 class FilterView extends StatefulWidget {
-  final Filter? filter;
-  const FilterView({super.key, this.filter});
+  const FilterView({super.key});
 
   @override
   State<FilterView> createState() => _FilterViewState();
 }
 
 class _FilterViewState extends State<FilterView> {
-  late Filter _filter;
-
-  @override
-  void initState() {
-    super.initState();
-    _filter = widget.filter ?? Filter();
-  }
+  Category? _category;
 
   void _setCategory() {
     Navigator.of(context).push(MaterialPageRoute(
@@ -26,7 +20,7 @@ class _FilterViewState extends State<FilterView> {
       },
     )).then((value) {
       setState(() {
-        _filter.category = value;
+        _category = value;
       });
     });
   }
@@ -40,24 +34,22 @@ class _FilterViewState extends State<FilterView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(_filter.category?.name ?? "No category"),
-                    FilledButton(
-                      onPressed: _setCategory,
-                      child: const Text("Select category"),
-                    ),
-                  ],
+                Text(_category?.name ?? "No category"),
+                FilledButton(
+                  onPressed: _setCategory,
+                  child: const Text("Select category"),
                 ),
               ],
             ),
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop(
-                  _filter,
+                  Filter(
+                    category: _category,
+                  ),
                 );
               },
               child: const Text("Save"),

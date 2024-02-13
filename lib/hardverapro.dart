@@ -58,13 +58,6 @@ class Hardverapro {
       title: ad?.querySelector("h1")?.text.trim(),
       description: ad?.querySelector(".rtif-content")?.innerHtml.trim(),
       price: ad?.querySelector(".uad-details")?.querySelector("h2")?.text,
-      location: document.querySelector(".fa-map-marker")?.parent?.text.trim(),
-      isDelivered:
-          document.querySelector(".uad")?.querySelector(".fa-truck") != null,
-      isPickupOnly: document
-              .querySelector(".uad")
-              ?.querySelector(".fa-person-carry-box") !=
-          null,
       freezed: document.querySelector(".uad.iced") != null,
       author: HardveraproAuthor(
         username: document.querySelector(".uad")?.querySelector("b > a")?.text,
@@ -148,9 +141,6 @@ class HardveraproProduct {
   final String? title;
   final String? description;
   final String? price;
-  final String? location;
-  final bool isDelivered;
-  final bool isPickupOnly;
   final List<String?> images;
   final bool freezed;
   final HardveraproAuthor author;
@@ -159,9 +149,6 @@ class HardveraproProduct {
     required this.title,
     required this.description,
     required this.price,
-    required this.location,
-    required this.isDelivered,
-    required this.isPickupOnly,
     required this.images,
     required this.freezed,
     required this.author,

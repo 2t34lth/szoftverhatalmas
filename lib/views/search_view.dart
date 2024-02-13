@@ -16,7 +16,7 @@ enum LoadingState {
 }
 
 class Filter {
-  Category? category;
+  final Category? category;
 
   Filter({this.category});
 }
@@ -30,11 +30,11 @@ class _SearchViewState extends State<SearchView> {
   void _setFilter() {
     Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
       builder: (context) {
-        return FilterView(filter: _filter);
+        return const FilterView();
       },
     )).then((r) {
       setState(() {
-        if (_filter != null) _filter = r;
+        _filter = r;
       });
 
       _search();
