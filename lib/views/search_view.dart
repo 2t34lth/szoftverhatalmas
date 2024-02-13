@@ -52,6 +52,7 @@ class _SearchViewState extends State<SearchView> {
       _searchQuery.text,
       category: _filter?.category,
     ).then((posts) {
+      if (!context.mounted) return;
       setState(() {
         _posts = posts;
       });
