@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
+import 'package:hardverapro_a_kezedben/views/search_view.dart';
 
 class CategoryView extends StatefulWidget {
   const CategoryView({super.key});
@@ -21,28 +22,44 @@ class _CategoryViewState extends State<CategoryView> {
   ];
   List<Category> _subcategories = [];
   Category? _category;
+  LoadingState _state = LoadingState.ready;
+
+  void _updateCategories(Category c) {
+    _category = c;
+    setState(() {
+      _state = LoadingState.processing;
+    });
+    Hardverapro.getCategories(_category!.path).then((categories) {
+      if (categories.isEmpty) {
+        Navigator.of(context).pop(_category);
+        return;
+      } else {
+        setState(() {
+          _subcategories = categories;
+        });
+      }
+    }).whenComplete(() => _state = LoadingState.ready);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Category")),
       body: Builder(builder: (context) {
+        if (_state == LoadingState.processing) {
+          return const Center(child: CircularProgressIndicator());
+        }
         if (_subcategories.isEmpty) {
           return ListView(
-              children: _categories
-                  .map((e) => ListTile(
-                        title: Text(e.name),
-                        onTap: () {
-                          _category = e;
-                          Hardverapro.getCategories(_category!.path)
-                              .then((categories) {
-                            setState(() {
-                              _subcategories = categories;
-                            });
-                          });
-                        },
-                      ))
-                  .toList());
+            children: _categories
+                .map(
+                  (Category e) => ListTile(
+                    title: Text(e.name),
+                    onTap: () => _updateCategories(e),
+                  ),
+                )
+                .toList(),
+          );
         }
         return ListView(children: [
           ListTile(
@@ -53,19 +70,7 @@ class _CategoryViewState extends State<CategoryView> {
           ),
           ..._subcategories.map((e) => ListTile(
                 title: Text(e.name),
-                onTap: () {
-                  _category = e;
-                  Hardverapro.getCategories(_category!.path).then((categories) {
-                    if (categories.isEmpty) {
-                      Navigator.of(context).pop(_category);
-                      return;
-                    } else {
-                      setState(() {
-                        _subcategories = categories;
-                      });
-                    }
-                  });
-                },
+                onTap: () => _updateCategories(e),
               ))
         ]);
       }),

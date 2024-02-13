@@ -1,4 +1,4 @@
-package com.example.hardverapro_a_kezedben
+package hu.chromium.szoftverhatalmas
 
 import io.flutter.embedding.android.FlutterActivity
 
