@@ -17,8 +17,16 @@ enum LoadingState {
 
 class Filter {
   Category? category;
+  int? minPrice;
+  int? maxPrice;
+  bool? hideFrozen;
 
-  Filter({this.category});
+  Filter({
+    this.category,
+    this.minPrice,
+    this.maxPrice,
+    this.hideFrozen,
+  });
 }
 
 class _SearchViewState extends State<SearchView> {
@@ -48,10 +56,7 @@ class _SearchViewState extends State<SearchView> {
       _posts = [];
       _state = LoadingState.processing;
     });
-    Hardverapro.search(
-      _searchQuery.text,
-      category: _filter?.category,
-    ).then((posts) {
+    Hardverapro.search(_searchQuery.text, _filter ?? Filter()).then((posts) {
       if (!context.mounted) return;
       setState(() {
         _posts = posts;
@@ -127,9 +132,13 @@ class _SearchViewState extends State<SearchView> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                children: _posts.map((el) {
-                  return SearchResult(post: el);
-                }).toList(),
+                children: [
+                  Text(
+                      "minPrice: ${_filter?.minPrice} maxPrice: ${_filter?.maxPrice} hideFrozen: ${_filter?.hideFrozen}"),
+                  ..._posts.map((el) {
+                    return SearchResult(post: el);
+                  })
+                ],
               ),
             );
           }

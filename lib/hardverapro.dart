@@ -1,3 +1,4 @@
+import "package:hardverapro_a_kezedben/views/search_view.dart";
 import "package:html/dom.dart";
 import "package:http/http.dart" as http;
 import "package:html/parser.dart";
@@ -34,15 +35,10 @@ class Hardverapro {
     }).toList();
   }
 
-  static Future<List<HardveraproPost>> search(String query,
-      {Category? category}) async {
-    final resp = await http.get(
-      category != null
-          ? Uri.parse(
-              "https://hardverapro.hu/aprok/${category.path}/keres.php?stext=${Uri.encodeFull(query)}")
-          : Uri.parse(
-              "https://hardverapro.hu/aprok/keres.php?stext=${Uri.encodeFull(query)}"),
-    );
+  static Future<List<HardveraproPost>> search(
+      String query, Filter filter) async {
+    final resp = await http.get(Uri.parse(
+        "https://hardverapro.hu/aprok/${filter.category != null ? '${filter.category!.path}/' : ""}keres.php?stext=${Uri.encodeFull(query)}&minprice=${filter.minPrice}&maxprice=${filter.maxPrice}&noiced=${(filter.hideFrozen ?? false) ? 1 : 0}"));
 
     final Document document = parse(resp.body);
     return parsePosts(document);
