@@ -133,8 +133,11 @@ class _SearchViewState extends State<SearchView> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
-                  Text(
-                      "minPrice: ${_filter?.minPrice} maxPrice: ${_filter?.maxPrice} hideFrozen: ${_filter?.hideFrozen}"),
+                  Visibility(
+                    visible: false, // for debug purposes
+                    child: Text(
+                        "minPrice: ${_filter?.minPrice} maxPrice: ${_filter?.maxPrice} hideFrozen: ${_filter?.hideFrozen}"),
+                  ),
                   ..._posts.map((el) {
                     return SearchResult(post: el);
                   })
