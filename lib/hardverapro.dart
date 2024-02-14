@@ -1,46 +1,72 @@
+import "package:dio/dio.dart";
 import "package:hardverapro_a_kezedben/views/search_view.dart";
 import "package:html/dom.dart";
 import "package:http/http.dart" as http;
 import "package:html/parser.dart";
 
+final pathRegex = RegExp(r'^\/aprok\/(.+)\/index.html$');
+final offsetRegex = RegExp(r'offset=(\d+)');
+
 class Hardverapro {
-  static List<HardveraproPost> parsePosts(Document document) {
-    return document.querySelectorAll(".media").map((el) {
-      return HardveraproPost(
-        title: el.querySelector("h1")?.querySelector("a")?.text,
-        price: el.querySelector(".uad-price")?.text,
-        location: el.querySelector(".uad-light")?.querySelector("span") != null
-            ? el
-                .querySelector(".uad-light")
-                ?.querySelector("span")
-                ?.attributes["data-original-title"]
-            : el.querySelector(".uad-light")?.text,
-        imageUrl:
-            "https:${el.querySelector(".uad-image")?.querySelector("img")?.attributes["src"]}"
-                .replaceFirst(RegExp(r'\/100$'), "/400"),
-        url: el.querySelector("h1")?.querySelector("a")?.attributes["href"],
-        freezed: el
-                .querySelector(".uad-title")
-                ?.querySelector("span.fa-snowflake") !=
-            null,
-        author: HardveraproAuthor(
-          username: el
-              .querySelector(".uad-misc")
-              ?.querySelector(".uad-light > a")
-              ?.text,
-          rating: el.querySelector(".uad-rating")?.text.trim(),
-          avatarUrl: "",
-        ),
-      );
-    }).toList();
+  static HardveraproPosts parsePosts(Document document) {
+    return HardveraproPosts(
+      posts: document.querySelectorAll(".media").map((el) {
+        return HardveraproPost(
+          title: el.querySelector("h1")?.querySelector("a")?.text,
+          price: el.querySelector(".uad-price")?.text,
+          location:
+              el.querySelector(".uad-light")?.querySelector("span") != null
+                  ? el
+                      .querySelector(".uad-light")
+                      ?.querySelector("span")
+                      ?.attributes["data-original-title"]
+                  : el.querySelector(".uad-light")?.text,
+          imageUrl:
+              "https:${el.querySelector(".uad-image")?.querySelector("img")?.attributes["src"]}"
+                  .replaceFirst(RegExp(r'\/100$'), "/400"),
+          url: el.querySelector("h1")?.querySelector("a")?.attributes["href"],
+          freezed: el
+                  .querySelector(".uad-title")
+                  ?.querySelector("span.fa-snowflake") !=
+              null,
+          author: HardveraproAuthor(
+            username: el
+                .querySelector(".uad-misc")
+                ?.querySelector(".uad-light > a")
+                ?.text,
+            rating: el.querySelector(".uad-rating")?.text.trim(),
+            avatarUrl: "",
+          ),
+        );
+      }).toList(),
+      offsets: document
+          .querySelector(".nav-pager")!
+          .querySelectorAll(".dropdown-item")
+          .map((Element el) => int.parse(
+              offsetRegex.firstMatch(el.attributes["href"]!)?.group(1) ?? "0"))
+          .toList()
+          .reversed
+          .toList(),
+    );
   }
 
-  static Future<List<HardveraproPost>> search(
-      String query, Filter filter) async {
-    final resp = await http.get(Uri.parse(
-        "https://hardverapro.hu/aprok/${filter.category != null ? '${filter.category!.path}/' : ""}keres.php?stext=${Uri.encodeFull(query)}&minprice=${filter.minPrice}&maxprice=${filter.maxPrice}&noiced=${(filter.hideFrozen ?? false) ? 1 : 0}"));
+  static Future<HardveraproPosts> search(
+    String query,
+    Filter filter,
+    int? offset,
+  ) async {
+    final resp = await Dio().get(
+      "https://hardverapro.hu/aprok/${filter.category != null ? '${filter.category!.path}/' : ''}${query == "" ? "index.html" : "keres.php"}",
+      queryParameters: {
+        "stext": query,
+        "minprice": filter.minPrice,
+        "maxprice": filter.maxPrice,
+        "noiced": (filter.hideFrozen ?? false) ? 1 : 0,
+        "offset": offset
+      },
+    );
 
-    final Document document = parse(resp.body);
+    final Document document = parse(resp.data);
     return parsePosts(document);
   }
 
@@ -81,7 +107,7 @@ class Hardverapro {
     );
   }
 
-  static Future<List<HardveraproPost>> homePosts() async {
+  static Future<HardveraproPosts> homePosts() async {
     final resp = await http.get(Uri.parse("https://hardverapro.hu/index.html"));
 
     final Document document = parse(resp.body);
@@ -92,7 +118,6 @@ class Hardverapro {
     final resp = await http
         .get(Uri.parse("https://hardverapro.hu/aprok/$path/index.html"));
     final document = parse(resp.body);
-    final pathRegex = RegExp(r'^\/aprok\/(.+)\/index.html$');
 
     if (document.querySelector(".uad-categories-item.active") != null) {
       return [];
@@ -118,6 +143,13 @@ class SearchResults {
   final List<HardveraproPost> results;
 
   SearchResults({required this.categories, required this.results});
+}
+
+class HardveraproPosts {
+  final List<HardveraproPost> posts;
+  final List<int> offsets;
+
+  HardveraproPosts({required this.posts, required this.offsets});
 }
 
 class HardveraproPost {

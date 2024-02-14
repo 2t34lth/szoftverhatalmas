@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
 import 'package:hardverapro_a_kezedben/views/filter_view.dart';
 import 'package:hardverapro_a_kezedben/widgets/search_result.dart';
+import 'package:infinite_scroll/infinite_scroll_list.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -12,6 +13,7 @@ class SearchView extends StatefulWidget {
 
 enum LoadingState {
   processing,
+  loadingAdditional,
   ready,
 }
 
@@ -34,6 +36,9 @@ class _SearchViewState extends State<SearchView> {
   final _searchQuery = TextEditingController();
   LoadingState _state = LoadingState.processing;
   Filter? _filter;
+  List<int> _offsets = [];
+  int _offset = 0;
+  bool _everythingLoaded = false;
 
   void _setFilter() {
     Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
@@ -55,11 +60,35 @@ class _SearchViewState extends State<SearchView> {
     setState(() {
       _posts = [];
       _state = LoadingState.processing;
+      _everythingLoaded = false;
     });
-    Hardverapro.search(_searchQuery.text, _filter ?? Filter()).then((posts) {
+    Hardverapro.search(_searchQuery.text, _filter ?? Filter(), 0)
+        .then((result) {
       if (!context.mounted) return;
       setState(() {
-        _posts = posts;
+        _posts = result.posts;
+        _offsets = result.offsets;
+      });
+    }).whenComplete(
+      () => setState(() {
+        _state = LoadingState.ready;
+      }),
+    );
+  }
+
+  void _loadMore() {
+    setState(() {
+      _state = LoadingState.loadingAdditional;
+    });
+    Hardverapro.search(
+      _searchQuery.text,
+      _filter ?? Filter(),
+      _offset,
+    ).then((result) {
+      if (!context.mounted) return;
+      setState(() {
+        _posts.addAll(result.posts);
+        _offsets = result.offsets;
       });
     }).whenComplete(
       () => setState(() {
@@ -71,9 +100,11 @@ class _SearchViewState extends State<SearchView> {
   @override
   void initState() {
     super.initState();
-    Hardverapro.homePosts().then((posts) {
+    Hardverapro.homePosts().then((result) {
       setState(() {
-        _posts = posts;
+        _posts = result.posts;
+        _offsets = result.offsets;
+        _offset = _offsets.first;
         _state = LoadingState.ready;
       });
     });
@@ -128,21 +159,20 @@ class _SearchViewState extends State<SearchView> {
               ),
             );
           } else {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                children: [
-                  Visibility(
-                    visible: false, // for debug purposes
-                    child: Text(
-                        "minPrice: ${_filter?.minPrice} maxPrice: ${_filter?.maxPrice} hideFrozen: ${_filter?.hideFrozen}"),
-                  ),
-                  ..._posts.map((el) {
-                    return SearchResult(post: el);
-                  })
-                ],
-              ),
+            return InfiniteScrollList(
+              padding: const EdgeInsets.all(8.0),
+              everythingLoaded: _everythingLoaded,
+              onLoadingStart: (_) {
+                if (_offsets.indexOf(_offset) + 1 >= _offsets.length) {
+                  setState(() {
+                    _everythingLoaded = true;
+                  });
+                } else {
+                  _offset = _offsets[_offsets.indexOf(_offset) + 1];
+                  _loadMore();
+                }
+              },
+              children: [..._posts.map((post) => SearchResult(post: post))],
             );
           }
         },
