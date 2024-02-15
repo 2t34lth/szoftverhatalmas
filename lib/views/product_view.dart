@@ -3,12 +3,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:full_screen_image/full_screen_image.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
 
 class ProductView extends StatefulWidget {
-  const ProductView({super.key, required this.url, required this.title});
+  const ProductView({super.key, required this.url});
   final String url;
-  final String title;
 
   @override
   State<ProductView> createState() => _ProductViewState();
@@ -16,16 +16,20 @@ class ProductView extends StatefulWidget {
 
 class _ProductViewState extends State<ProductView> {
   HardveraproProduct? _product;
+  final List<dynamic> _savedItems =
+      GetStorage().read<List?>("saved_items") ?? [];
+  late bool _isSaved;
 
   @override
   void initState() {
     super.initState();
 
-    Hardverapro.getPost(widget.url).then((product) => {
-          setState(() {
-            _product = product;
-          })
-        });
+    _isSaved = _savedItems.contains(widget.url);
+    Hardverapro.getPost(widget.url).then((product) {
+      setState(() {
+        _product = product;
+      });
+    });
   }
 
   @override
@@ -39,11 +43,25 @@ class _ProductViewState extends State<ProductView> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
+            child: TextButton.icon(
+              icon: Icon(_isSaved ? Icons.bookmark : Icons.bookmark_outline),
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: widget.url));
+                setState(() {
+                  if (!_isSaved) {
+                    _savedItems.add(widget.url);
+                  } else {
+                    _savedItems.remove(widget.url);
+                  }
+
+                  _isSaved = !_isSaved;
+
+                  GetStorage().write(
+                    "saved_items",
+                    _savedItems,
+                  );
+                });
               },
-              icon: const Icon(Icons.share),
+              label: const Text("Save"),
             ),
           )
         ],
@@ -76,7 +94,7 @@ class _ProductViewState extends State<ProductView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.title,
+                          _product?.title ?? "unknown title",
                           style: const TextStyle(
                             fontSize: 20,
                           ),

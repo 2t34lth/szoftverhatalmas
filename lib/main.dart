@@ -1,12 +1,15 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:hardverapro_a_kezedben/views/account_view.dart';
 import 'package:hardverapro_a_kezedben/views/messages_view.dart';
 import 'package:hardverapro_a_kezedben/views/saved_view.dart';
 import 'package:hardverapro_a_kezedben/views/search_view.dart';
 
 void main() {
-  runApp(const App());
+  GetStorage.init().then((_) {
+    runApp(const App());
+  });
 }
 
 class App extends StatelessWidget {

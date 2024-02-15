@@ -44,6 +44,8 @@ dependencies:
   full_screen_image: ^2.0.0
   infinite_scroll: ^1.1.1
   dio: ^5.4.0
+  get: ^4.6.6
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:

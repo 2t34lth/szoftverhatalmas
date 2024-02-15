@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
 import 'package:hardverapro_a_kezedben/views/filter_view.dart';
+import 'package:hardverapro_a_kezedben/views/product_view.dart';
 import 'package:hardverapro_a_kezedben/widgets/search_result.dart';
 import 'package:infinite_scroll/infinite_scroll_list.dart';
 
@@ -172,7 +173,20 @@ class _SearchViewState extends State<SearchView> {
                   _loadMore();
                 }
               },
-              children: [..._posts.map((post) => SearchResult(post: post))],
+              children: [
+                ..._posts.map((post) => SearchResult(
+                      post: post,
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute(
+                            builder: (context) => ProductView(
+                              url: post.url!,
+                            ),
+                          ),
+                        );
+                      },
+                    ))
+              ],
             );
           }
         },

@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hardverapro_a_kezedben/hardverapro.dart';
-import 'package:hardverapro_a_kezedben/views/product_view.dart';
 
 class SearchResult extends StatelessWidget {
   final HardveraproPost post;
-  const SearchResult({super.key, required this.post});
+  final void Function()? onTap;
+  const SearchResult({super.key, required this.post, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          Navigator.of(context, rootNavigator: true).push(
-            MaterialPageRoute(
-              builder: (context) => ProductView(
-                url: post.url!,
-                title: post.title ?? "unknown title",
-              ),
-            ),
-          );
-        },
+        onTap: onTap,
         child: Column(
           children: [
             Image.network(
