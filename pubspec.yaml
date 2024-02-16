@@ -37,7 +37,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   dynamic_color: ^1.6.9
   html: ^0.15.4
-  http: ^1.2.0
   carousel_slider: ^4.2.1
   flutter_widget_from_html: ^0.14.11
   dropdown_button2: ^2.3.9

@@ -1,11 +1,14 @@
 import "package:dio/dio.dart";
 import "package:hardverapro_a_kezedben/views/search_view.dart";
 import "package:html/dom.dart";
-import "package:http/http.dart" as http;
 import "package:html/parser.dart";
 
 final pathRegex = RegExp(r'^\/aprok\/(.+)\/index.html$');
 final offsetRegex = RegExp(r'offset=(\d+)');
+
+final Dio dio = Dio(BaseOptions(headers: {
+  "User-Agent": "SzH/1.0.0 (Linux; U; Android; contact: chromium@airmail.cc)",
+}));
 
 class Hardverapro {
   static HardveraproPosts parsePosts(Document document) {
@@ -71,9 +74,9 @@ class Hardverapro {
   }
 
   static Future<HardveraproProduct> getPost(String url) async {
-    final resp = await http.get(Uri.parse(url));
+    final resp = await dio.get(url);
 
-    final document = parse(resp.body);
+    final document = parse(resp.data);
     final ad = document.querySelector(".uad");
 
     return HardveraproProduct(
@@ -108,16 +111,15 @@ class Hardverapro {
   }
 
   static Future<HardveraproPosts> homePosts() async {
-    final resp = await http.get(Uri.parse("https://hardverapro.hu/index.html"));
+    final resp = await dio.get("https://hardverapro.hu/index.html");
 
-    final Document document = parse(resp.body);
+    final Document document = parse(resp.data);
     return parsePosts(document);
   }
 
   static Future<List<Category>> getCategories(String path) async {
-    final resp = await http
-        .get(Uri.parse("https://hardverapro.hu/aprok/$path/index.html"));
-    final document = parse(resp.body);
+    final resp = await dio.get("https://hardverapro.hu/aprok/$path/index.html");
+    final document = parse(resp.data);
 
     if (document.querySelector(".uad-categories-item.active") != null) {
       return [];
